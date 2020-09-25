@@ -1,4 +1,4 @@
-GUIA PARA INYECCION EN POSTGRESQL 
+INYECCION SQL A BBDD POSTGRESQL 
 
 1- Comprobar cuantas columnas tiene la tabla mediante UNION SELECT:
 	
